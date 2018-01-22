@@ -112,6 +112,10 @@ void TLT_SDL_DrawChar(SDL_Simplewin *sw, Pixel* pixel,
       SDL_Color graphicsColor;
       int i, j, offset_x, offset_y;
 
+      if(pixel->blockGraphic == NULL) {
+        return;
+      }
+
       color_to_rgb(&graphicsColor, pixel->graphicsColor);
 
       Neill_SDL_SetDrawColour(sw, graphicsColor.r, graphicsColor.g, graphicsColor.b);

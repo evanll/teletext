@@ -31,8 +31,9 @@ Teletext* TLT_translate(TokenStream* tokenStream) {
 
       currentState = nextState;
 
-      debug_token(*(tokenStream->tokens[i][j]));
-			debug_pixel(teletext->pixels[i][j]);
+      /*Debug*/
+      /* debug_token(*(tokenStream->tokens[i][j])); */
+			/* debug_pixel(teletext->pixels[i][j */
     }
   }
 
@@ -92,10 +93,10 @@ void handle_control_token(TokenStream* tokenStream, Pixel* pixel, State* current
   /* Now deal deals with the control token */
 	switch (token->type) {
 		case ALPHANUM_COLOR:
-    handle_alphanum_color(token, pixel, nextState);
+    handle_alphanum_color(token, pixel, currentState, nextState);
 		break;
 		case GRAPHICS_COLOR:
-    handle_graphics_color(token, pixel, nextState);
+    handle_graphics_color(token, pixel, currentState, nextState);
 		break;
 		case BLACK_BG_COLOR:
     pixel->bgColor = nextState->bgColor = BLACK;
@@ -104,10 +105,10 @@ void handle_control_token(TokenStream* tokenStream, Pixel* pixel, State* current
 		handle_new_bg_color(tokenStream, pixel, nextState, row, column);
 		break;
 		case HEIGHT_MODE:
-    handle_height_mode(token, currentState, nextState);
+    handle_height_mode(token, pixel, currentState, nextState);
 		break;
 		case GRAPHICS_MODE:
-		handle_graphics_mode(token, currentState, nextState);
+		handle_graphics_mode(token, pixel, currentState, nextState);
 		break;
 		case HOLD_MODE:
 		handle_hold_mode(token, pixel, currentState, nextState);
@@ -118,7 +119,7 @@ void handle_control_token(TokenStream* tokenStream, Pixel* pixel, State* current
 	}
 }
 
-void handle_alphanum_color(Token* token, Pixel* pixel, State* nextState) {
+void handle_alphanum_color(Token* token, Pixel* pixel, State* currentState, State* nextState) {
   color alphanumColor;
 
   alphanumColor = decode_color(token->attribute);
@@ -128,9 +129,16 @@ void handle_alphanum_color(Token* token, Pixel* pixel, State* nextState) {
 
   /* Apply color to this pixel in case it's displayed as hold */
   pixel->alphanumColor =  alphanumColor;
+
+  /*Hold rule */
+  if(currentState->holdMode == HOLD) {
+    if (nextState->outputMode != currentState->outputMode) {
+      release_graphics(pixel, nextState);
+    }
+  }
 }
 
-void handle_graphics_color(Token* token, Pixel* pixel, State* nextState) {
+void handle_graphics_color(Token* token, Pixel* pixel, State* currentState, State* nextState) {
   color graphicsColor;
 
   graphicsColor = decode_color(token->attribute);
@@ -141,6 +149,13 @@ void handle_graphics_color(Token* token, Pixel* pixel, State* nextState) {
 
   /* Apply to this pixel also in case it's displayed as hold */
   pixel->graphicsColor =  graphicsColor;
+
+  /* Hold Rule because this also sets CONTIGUOUS graphics mode */
+  if(currentState->holdMode == HOLD) {
+    if (nextState->graphicsMode != currentState->graphicsMode) {
+      release_graphics(pixel, nextState);
+    }
+  }
 
 }
 void handle_new_bg_color(TokenStream* tokenStream, Pixel* pixel, State* nextState,  int row, int column) {
@@ -158,19 +173,19 @@ void handle_new_bg_color(TokenStream* tokenStream, Pixel* pixel, State* nextStat
   /* Do nothing if there's not a color code before and display bg as usual */
 }
 
-void handle_height_mode(Token* token, State* currentState, State* nextState) {
+void handle_height_mode(Token* token, Pixel* pixel, State* currentState, State* nextState) {
 
   nextState->heightMode = decode_height_mode(token->attribute);
 
   /* Hold rule */
   if(currentState->holdMode == HOLD) {
     if (nextState->heightMode != currentState->heightMode) {
-      release_graphics(nextState);
+      release_graphics(pixel, nextState);
     }
   }
 }
 
-void handle_graphics_mode(Token* token, State* currentState, State* nextState) {
+void handle_graphics_mode(Token* token, Pixel* pixel, State* currentState, State* nextState) {
 
   nextState->graphicsMode = decode_graphics_mode(token->attribute);
   nextState->outputMode = GRAPHICS;
@@ -178,7 +193,7 @@ void handle_graphics_mode(Token* token, State* currentState, State* nextState) {
   /* Hold rule */
   if(currentState->holdMode == HOLD) {
     if (nextState->graphicsMode != currentState->graphicsMode) {
-      release_graphics(nextState);
+      release_graphics(pixel, nextState);
     }
   }
 }
@@ -198,7 +213,7 @@ void handle_hold_mode(Token* token, Pixel* pixel, State* currentState, State* ne
     }
 		break;
 		case RELEASE:
-		release_graphics(nextState);
+		release_graphics(pixel, nextState);
 		break;
 	}
 }
@@ -215,10 +230,18 @@ void set_pixel_to_hold(Pixel* pixel, State* currentState) {
   memcpy(pixel->blockGraphic, currentState->lastGraphic, sizeof(Block_Graphic));
 }
 
-void release_graphics(State* state) {
+/* Affects both output and state */
+void release_graphics(Pixel* pixel, State* state) {
   state->holdMode = RELEASE;
   state->lastGraphic = NULL;
   state->lastGraphicsMode = CONTIGUOUS;
+
+  pixel->holdMode = RELEASE;
+  pixel->graphicsMode = CONTIGUOUS;
+  pixel->outputMode = TEXT;
+  pixel->character = ' ';
+  free(pixel->blockGraphic); /* have to watch this one */
+  pixel->blockGraphic = NULL; /* need this to avoid double free */
 }
 
 void set_character_part(Teletext* teletext, Pixel* pixel, State* currentState, int row, int column) {

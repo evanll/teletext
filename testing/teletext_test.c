@@ -27,15 +27,17 @@ void test_hold_mode_e();
 
 int main () {
 
+  printf("Starting Tests...\n");
   test_block_graphics();
   test_alphanum_mode();
   test_graphics_and_breakthrough_mode();
   test_height_mode();
   test_hold_mode_a();
   test_hold_mode_b();
-  /*test_hold_mode_c();
+  test_hold_mode_c();
   test_hold_mode_d();
-  test_hold_mode_e();*/
+  test_hold_mode_e();
+  printf("Tests completed\n");
 
   return 0;
 }
@@ -103,7 +105,7 @@ void test_block_graphics() {
   assert(blockGraphic->sixels[2][1]==1);
   free(blockGraphic);
 
-  printf("Block graphics test: Passed");
+  printf("Block Graphics Test: Passed\n");
 }
 
 void test_alphanum_mode() {
@@ -161,7 +163,7 @@ void test_alphanum_mode() {
   TLT_free(&teletext);
   assert(teletext==NULL);
 
-    printf("Colored texted switch: PASSED.\n");
+  printf("Colored Text: PASSED.\n");
 }
 
 void test_graphics_and_breakthrough_mode() {
@@ -219,6 +221,9 @@ void test_graphics_and_breakthrough_mode() {
       assert(teletext->pixels[0][i].graphicsMode == SEPERATED);
       assert(teletext->pixels[0][i].graphicsColor == GREEN);
     }
+
+    printf("Graphic Modes Test: PASSED.\n");
+
     /* Breaktrhough */
     assert(teletext->pixels[0][13].character = 'W');
     assert(teletext->pixels[0][14].character = 'Y');
@@ -236,7 +241,7 @@ void test_graphics_and_breakthrough_mode() {
     TLT_free(&teletext);
     assert(teletext==NULL);
 
-    printf("Graphics switching and breaktrhough text: PASSED.\n");
+    printf("Breakthrough Test: PASSED.\n");
 }
 
 void test_height_mode() {
@@ -327,6 +332,9 @@ void test_height_mode() {
       assert(teletext->pixels[1][i].charPart == WHOLE);
     }
 
+    /* Uncomment to render case */
+    /*TLT_SDL_render(teletext);*/
+
     free(tokenStream);
     TLT_free(&teletext);
     assert(teletext==NULL);
@@ -393,6 +401,9 @@ void test_hold_mode_a() {
       }
     }
 
+    /* Uncomment to render case */
+    /*TLT_SDL_render(teletext);*/
+
     free(tokenStream);
     TLT_free(&teletext);
     assert(teletext==NULL);
@@ -446,10 +457,13 @@ void test_hold_mode_b() {
         teletext->pixels[0][8].blockGraphic->sixels[i][j]);
         assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
         teletext->pixels[0][9].blockGraphic->sixels[i][j]);
-        assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
+        assert(teletext->pixels[0][10].blockGraphic->sixels[i][j] ==
         teletext->pixels[0][11].blockGraphic->sixels[i][j]);
       }
     }
+
+    /* Uncomment to render case */
+    /*TLT_SDL_render(teletext);*/
 
     free(tokenStream);
     TLT_free(&teletext);
@@ -504,10 +518,13 @@ void test_hold_mode_c() {
       teletext->pixels[0][8].blockGraphic->sixels[i][j]);
       assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
       teletext->pixels[0][9].blockGraphic->sixels[i][j]);
-      assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
+      assert(teletext->pixels[0][10].blockGraphic->sixels[i][j] ==
       teletext->pixels[0][11].blockGraphic->sixels[i][j]);
     }
   }
+
+  /* Uncomment to render case */
+  /*TLT_SDL_render(teletext);*/
 
   free(tokenStream);
   TLT_free(&teletext);
@@ -562,10 +579,13 @@ void test_hold_mode_d() {
       teletext->pixels[0][8].blockGraphic->sixels[i][j]);
       assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
       teletext->pixels[0][9].blockGraphic->sixels[i][j]);
-      assert(teletext->pixels[0][7].blockGraphic->sixels[i][j] ==
+      assert(teletext->pixels[0][10].blockGraphic->sixels[i][j] ==
       teletext->pixels[0][11].blockGraphic->sixels[i][j]);
     }
   }
+
+  /* Uncomment to render case */
+  /*TLT_SDL_render(teletext);*/
 
   free(tokenStream);
   TLT_free(&teletext);
@@ -612,6 +632,9 @@ void test_hold_mode_e() {
   assert(teletext->pixels[0][10].holdMode == RELEASE);
   assert(teletext->pixels[0][11].holdMode == RELEASE); /* sepereated should released */
   assert(teletext->pixels[0][12].holdMode == RELEASE);
+
+  /* Uncomment to render case */
+  /*TLT_SDL_render(teletext);*/
 
   free(tokenStream);
   TLT_free(&teletext);
