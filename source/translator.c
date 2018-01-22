@@ -33,7 +33,7 @@ Teletext* TLT_translate(TokenStream* tokenStream) {
 
       /*Debug*/
       /* debug_token(*(tokenStream->tokens[i][j])); */
-      /* debug_pixel(teletext->pixels[i][j */
+      /* debug_pixel(teletext->pixels[i][j]); */
     }
   }
 
