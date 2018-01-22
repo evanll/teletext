@@ -111,7 +111,7 @@ TokenStream* TLT_load_test(unsigned char line1[MAX_LENGTH],
     assert(blockGraphic->sixels[2][1]==1);
     free(blockGraphic);
 
-    printf("Block Graphics Test: Passed\n");
+    printf("Block Graphics Test: Passed.\n");
   }
 
   void test_alphanum_mode() {

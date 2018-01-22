@@ -1,18 +1,23 @@
-/* Unit Testing */
-For checking that the block graphics render correctly, I performed unit testing.
-I passed different values to the init_block_graphic function and used assertions to determine that the correct sixels were lit.
+﻿A. Implementation
+
+My approach consists of 4 main components:
+1. Tokenizer: Takes as input a Teletext file, identifies valid tokens and categorizes them in basic types. Then it produces a TokenStream.
+
+2. Decoder: Consists of a set of functions that decode the control codes and return teletext modes, colors etc.
+
+3. Translator: It’s where the most work happens. It takes a TokenStream as an input and returns a Teletext structure. The translator is implemented as a simple State Machine. My initial approach was getting complicated, as I started implementing more and more functionality to the point it was difficult to debug. So I rewrote the Translator as simple State Machine resulting in less, cleaner and more manageable code. To sum up each token produces an output depending on the current state of the translator and if it’s a control code it defines the next state. 
+
+4. Renderer: SDL is used for graphics. The renderer takes as an input a Teletext structure and draws it on the screen.  I kept clear boundaries between the main teletext functionality and the renderer. This way it’s much simpler, and any other graphics libraries can be implemented in an instant.
 
 
+B. Testing
+
+Having a modular structure with clearly defined task for each component, allowed me to isolate problems quickly down to specific units. I followed 2 testing strategies :
+
+1. Textual Output: While building the basic functionality, I relied heavily on textual output. Each token and each Teletext “Pixel” has it’s own debug info( ex. Position, line) along with other information, so I was able to evaluate results long before implementing SDL. Of course textual and visual output is not enough.
+
+2. Unit Testing: I believe that Unit Testing is the most appropriate strategy to evaluate my approach. The code is clearly separated into units that can be tested and evaluated independently. I tested every unit, for example the Tokenizer, the Sixels functionality and the Translator logic. I wrote tests to evaluate various switching and edge cases using assert.h. Examples include single/double height mode with or without neighbors, various hold graphics cases to test that hold mode works correctly and it caches the correct block graphic. All these tests can be found at teletext_test.c along with descriptions for each case tested. Having written these cases made updating my code easy, without worrying every time that something else will stop working, or relying on visual evaluation for details like cached block graphics. 
+
+3. Valgrind and gdb: I used these tools to find the cause of various errors, mainly memory related. I tried to be consistent with mallocs and frees,and I wrote a teletext_free function to ensure freeing is dealt correctly. I fixed all the issues I could find in my code, but I still get memory leaks and errors from Valgrind. They are seemingly coming from SDL. I was not able to trace the cause of these errors.
 
 
-/* Memory Checks */
-I checked that I always free allocating memory.
-- Closing the file after tokenizing.
-- Freeing the TokenStream after convertion to Teletext, even though I kept the tokens inside the teletext for debugging purposes.
-- Freeing teletext after window close. For this I first had to free each token and block graphic.
-
-At first I got a memory error after attempting to terminate the program. So I used Valgrind to check for memory leaks and related errors.
-The cause of that error was that I was attempting to double free some block graphics, because when in hold mode I just pointed control code to the most recent graphic.
-I fixed that by allocating new space for each block graphic in hold mode and memcpy the most recent graphic.
-
-Further checkings with valgrind revealed leaks and other error seemingly coming from the SDL implmentation.

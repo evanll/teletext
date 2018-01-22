@@ -38,8 +38,7 @@ Node* tree_insert_child(Node* parent, Token token) {
 	parent->n++;
 
 	/*debug*/
-	tree_print(parent);
-	printf("\n\n");
+	/*tree_print(parent);*/
 
 	return newNode;
 }
@@ -57,20 +56,4 @@ Node* create_node(Token token) {
 	node->n = 0;
 
 	return node;
-}
-
-void tree_print(Node* root) {
-	int i = 0;
-	int j=0;
-
-	if (root == NULL) {
-		return;
-	}
-
-	printf("(%s", root->token.str);
-
-	for(i=0; i<root->n; i++)  {
-		tree_print(root->child[i]);
-	}
-	printf(")");
 }

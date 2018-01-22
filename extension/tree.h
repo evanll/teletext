@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "token.h"
+#include "../source/token.h"
 
 #define ON_ERROR(STR) fprintf(stderr, STR); exit(EXIT_FAILURE)
 
@@ -35,7 +35,5 @@ typedef struct tree Tree;
 
 Tree* tree_init(Token token);
 Node* tree_insert_child(Node* parent, Token token);
-void tree_print(Node* root);
-
 
 #endif /* TREE_H_ */
