@@ -1,0 +1,18 @@
+/* Unit Testing */
+For checking that the block graphics render correctly, I performed unit testing.
+I passed different values to the init_block_graphic function and used assertions to determine that the correct sixels were lit.
+
+
+
+
+/* Memory Checks */
+I checked that I always free allocating memory.
+- Closing the file after tokenizing.
+- Freeing the TokenStream after convertion to Teletext, even though I kept the tokens inside the teletext for debugging purposes.
+- Freeing teletext after window close. For this I first had to free each token and block graphic.
+
+At first I got a memory error after attempting to terminate the program. So I used Valgrind to check for memory leaks and related errors.
+The cause of that error was that I was attempting to double free some block graphics, because when in hold mode I just pointed control code to the most recent graphic.
+I fixed that by allocating new space for each block graphic in hold mode and memcpy the most recent graphic.
+
+Further checkings with valgrind revealed leaks and other error seemingly coming from the SDL implmentation.
