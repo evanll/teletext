@@ -1,41 +1,41 @@
 /*
- * tokenizer.c
- *
- *      Author: Evan Lalopoulos
- */
+* tokenizer.c
+*
+*      Author: Evan Lalopoulos
+*/
 #include "tokenizer.h"
 
 #define OFFSET_7_TO_8_BIT 0x80
 
 TokenStream* TLT_tokenize_file(FILE* ifp) {
 	int i,j;
-  int c;
-  TokenStream* tokenStream;
+	int c;
+	TokenStream* tokenStream;
 
 	if (ifp == NULL) {
-    ON_ERROR("Teletext file not found.\n");
-  }
+		ON_ERROR("Teletext file not found.\n");
+	}
 
-  tokenStream = (TokenStream*) malloc(sizeof(TokenStream));
-  if (tokenStream == NULL) {
-    ON_ERROR("Failed creating TokenStream. Memory allocation failed.\n");
-  }
-  tokenStream->tokenCount = 0;
+	tokenStream = (TokenStream*) malloc(sizeof(TokenStream));
+	if (tokenStream == NULL) {
+		ON_ERROR("Failed creating TokenStream. Memory allocation failed.\n");
+	}
+	tokenStream->tokenCount = 0;
 
-  for(i=0; i < MAX_LINES; i++) {
+	for(i=0; i < MAX_LINES; i++) {
 		/* Fill line with default a0 tokens in case file includes less than 1000 tokens*/
-    memset(tokenStream->tokens[i], 0xa0, MAX_LENGTH);
-    j = 0;
-    while (j < MAX_LENGTH && (c = getc(ifp)) != EOF) {
+		memset(tokenStream->tokens[i], 0xa0, MAX_LENGTH);
+		j = 0;
+		while (j < MAX_LENGTH && (c = getc(ifp)) != EOF) {
 			tokenStream->tokens[i][j] = tokenize(c);
-      tokenStream->tokenCount++;
-      tokenStream->tokens[i][j]->n = tokenStream->tokenCount;
+			tokenStream->tokenCount++;
+			tokenStream->tokens[i][j]->n = tokenStream->tokenCount;
 			tokenStream->tokens[i][j]->line = i+1;
-      j++;
-    }
-  }
+			j++;
+		}
+	}
 
-  return tokenStream;
+	return tokenStream;
 }
 
 /* Tokenize input to basic control types */
@@ -45,8 +45,8 @@ Token* tokenize(char c) {
 
 	newToken = (Token*) malloc(sizeof(Token));
 	if (newToken == NULL) {
-    ON_ERROR("Failed creating token. Memory allocation failed.\n");
-  }
+		ON_ERROR("Failed creating token. Memory allocation failed.\n");
+	}
 
 	ch = (unsigned char) c;
 	/* 7bit char to 8bit */
@@ -91,22 +91,22 @@ Token* tokenize(char c) {
 }
 
 void TLT_tokenstream_free(TokenStream** p) {
-  int i, j;
-  TokenStream* tokenStream = *p;
+	int i, j;
+	TokenStream* tokenStream = *p;
 
-  if (p==NULL) {
-    return;
-  }
+	if (p==NULL) {
+		return;
+	}
 
 	/* Free tokens */
-  for(i=0; i<MAX_LINES; i++) {
-    for(j=0; j<MAX_LENGTH; j++) {
-      free(tokenStream->tokens[i][j]);
-    }
-  }
+	for(i=0; i<MAX_LINES; i++) {
+		for(j=0; j<MAX_LENGTH; j++) {
+			free(tokenStream->tokens[i][j]);
+		}
+	}
 
-  free(tokenStream);
-  *p = NULL;
+	free(tokenStream);
+	*p = NULL;
 }
 
 void debug_token(Token token) {

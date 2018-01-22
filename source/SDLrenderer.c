@@ -85,9 +85,9 @@ void TLT_SDL_DrawChar(SDL_Simplewin *sw, Pixel* pixel,
     }
 
     /* z is used to keep track which "row" of the font is rendered.
-     * The idea is that depending on the scale factor each row is repeated
-     * nth times.
-     */
+    * The idea is that depending on the scale factor each row is repeated
+    * nth times.
+    */
     for(y = 0; y < FNTHEIGHT; y++) {
       for(x = 0; x < FNTWIDTH; x++) {
         if(fontdata[pixel->character - FNT1STCHAR][z] >> (FNTWIDTH - 1 - x) & 1){

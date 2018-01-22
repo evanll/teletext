@@ -38,7 +38,6 @@ typedef struct teletext {
 	Pixel pixels[MAX_LINES][MAX_LENGTH];
 } Teletext;
 
-/* Mainly acts as a cache, makes working with hold mode easier */
 typedef struct state {
 	Block_Graphic* lastGraphic;
 	graphicsOption lastGraphicsMode;
